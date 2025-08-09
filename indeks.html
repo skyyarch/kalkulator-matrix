@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Matriks AI</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    h1 { 
+      color: #333; 
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .mode-selector {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .mode-selector button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    .mode-selector button.active {
+      background-color: #667eea;
+      color: white;
+    }
+    
+    .mode-selector button:not(.active) {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    
+    .matrix-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .matrix {
+      text-align: center;
+      margin: 10px;
+    }
+    
+    .matrix h4 {
+      margin-bottom: 10px;
+      color: #555;
+    }
+    
+    .matrix input {
+      width: 60px;
+      height: 40px;
+      text-align: center;
+      font-size: 16px;
+      margin: 2px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .operation-display {
+      text-align: center;
+      font-size: 24px;
+      margin: 20px 0;
+      color: #667eea;
+    }
+    
+    .calculate-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 30px;
+      background-color: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .calculate-btn:hover {
+      background-color: #764ba2;
+    }
+    
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .result-matrix {
+      display: inline-block;
+      margin: 10px;
+    }
+    
+    .result-matrix input {
+      background-color: #e9ecef;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Matriks AI</h1>
+    
+    <div class="mode-selector">
+      <button onclick="setMode('add')" class="active" id="btn-add">Penjumlahan</button>
+      <button onclick="setMode('subtract')" id="btn-subtract">Pengurangan</button>
+      <button onclick="setMode('multiply')" id="btn-multiply">Perkalian</button>
+      <button onclick="setMode('scalar')" id="btn-scalar">Perkalian Skalar</button>
+      <button onclick="setMode('transpose')" id="btn-transpose">Transpose</button>
+    </div>
+    
+    <div class="operation-display" id="operation-display">A + B</div>
+    
+    <div class="matrix-container">
+      <div class="matrix">
+        <h4>Matriks A:</h4>
+        <input id="a00" type="number" value="0"> <input id="a01" type="number" value="0"><br>
+        <input id="a10" type="number" value="0"> <input id="a11" type="number" value="0">
+      </div>
+      
+      <div class="matrix" id="matrix-b">
+        <h4>Matriks B:</h4>
+        <input id="b00" type="number" value="0"> <input id="b01" type="number" value="0"><br>
+        <input id="b10" type="number" value="0"> <input id="b11" type="number" value="0">
+      </div>
+      
+      <div class="matrix" id="scalar-container" style="display: none;">
+        <h4>Skalar:</h4>
+        <input id="scalar" type="number" value="1" style="width: 130px;">
+      </div>
+    </div>
+    
+    <button class="calculate-btn" onclick="calculate()">Hitung</button>
+    
+    <div class="result" id="output">
+      <div class="result-matrix">
+        <h4>Hasil:</h4>
+        <input id="r00" type="number" readonly> <input id="r01" type="number" readonly><br>
+        <input id="r10" type="number" readonly> <input id="r11" type="number" readonly>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'add';
+    
+    function setMode(mode) {
+      currentMode = mode;
+      
+      // Update button states
+      document.querySelectorAll('.mode-selector button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`btn-${mode}`).classList.add('active');
+      
+      // Update operation display
+      const operationDisplay = document.getElementById('operation-display');
+      const matrixB = document.getElementById('matrix-b');
+      const scalarContainer = document.getElementById('scalar-container');
+      
+      switch(mode) {
+        case 'add':
+          operationDisplay.textContent = 'A + B';
+          matrixB.style.display = 'block';
+          scalarContainer.style.display = 'none';
+          break;
+        case 'subtract':
+          operationDisplay.textContent = 'A - B';
+          matrixB.style.display = 'block';
+          scalarContainer.style.display = 'none';
+          break;
+        case 'multiply':
+          operationDisplay.textContent = 'A × B';
+          matrixB.style.display = 'block';
+          scalarContainer.style.display = 'none';
+          break;
+        case 'scalar':
+          operationDisplay.textContent = 'k × A';
+          matrixB.style.display = 'none';
+          scalarContainer.style.display = 'block';
+          break;
+        case 'transpose':
+          operationDisplay.textContent = 'Aᵀ';
+          matrixB.style.display = 'none';
+          scalarContainer.style.display = 'none';
+          break;
+      }
+    }
+    
+    function getMatrixA() {
+      return [
+        [parseFloat(document.getElementById("a00").value) || 0, parseFloat(document.getElementById("a01").value) || 0],
+        [parseFloat(document.getElementById("a10").value) || 0, parseFloat(document.getElementById("a11").value) || 0]
+      ];
+    }
+    
+    function getMatrixB() {
+      return [
+        [parseFloat(document.getElementById("b00").value) || 0, parseFloat(document.getElementById("b01").value) || 0],
+        [parseFloat(document.getElementById("b10").value) || 0, parseFloat(document.getElementById("b11").value) || 0]
+      ];
+    }
+    
+    function displayResult(matrix) {
+      document.getElementById("r00").value = matrix[0][0];
+      document.getElementById("r01").value = matrix[0][1];
+      document.getElementById("r10").value = matrix[1][0];
+      document.getElementById("r11").value = matrix[1][1];
+    }
+    
+    function addMatrices(a, b) {
+      return [
+        [a[0][0] + b[0][0], a[0][1] + b[0][1]],
+        [a[1][0] + b[1][0], a[1][1] + b[1][1]]
+      ];
+    }
+    
+    function subtractMatrices(a, b) {
+      return [
+        [a[0][0] - b[0][0], a[0][1] - b[0][1]],
+        [a[1][0] - b[1][0], a[1][1] - b[1][1]]
+      ];
+    }
+    
+    function multiplyMatrices(a, b) {
+      return [
+        [a[0][0] * b[0][0] + a[0][1] * b[1][0], a[0][0] * b[0][1] + a[0][1] * b[1][1]],
+        [a[1][0] * b[0][0] + a[1][1] * b[1][0], a[1][0] * b[0][1] + a[1][1] * b[1][1]]
+      ];
+    }
+    
+    function scalarMultiply(matrix, scalar) {
+      return [
+        [matrix[0][0] * scalar, matrix[0][1] * scalar],
+        [matrix[1][0] * scalar, matrix[1][1] * scalar]
+      ];
+    }
+    
+    function transposeMatrix(matrix) {
+      return [
+        [matrix[0][0], matrix[1][0]],
+        [matrix[0][1], matrix[1][1]]
+      ];
+    }
+    
+    function calculate() {
+      const a = getMatrixA();
+      let result;
+      
+      switch(currentMode) {
+        case 'add':
+          const b = getMatrixB();
+          result = addMatrices(a, b);
+          break;
+        case 'subtract':
+          const bSub = getMatrixB();
+          result = subtractMatrices(a, bSub);
+          break;
+        case 'multiply':
+          const bMul = getMatrixB();
+          result = multiplyMatrices(a, bMul);
+          break;
+        case 'scalar':
+          const scalar = parseFloat(document.getElementById("scalar").value) || 1;
+          result = scalarMultiply(a, scalar);
+          break;
+        case 'transpose':
+          result = transposeMatrix(a);
+          break;
+      }
+      
+      displayResult(result);
+    }
+  </script>
+</body>
+</html>
